@@ -878,12 +878,19 @@
         noResults.style.display = visible === 0 ? 'block' : 'none';
       }
 
-      document.getElementById('filter-chips').addEventListener('click', function (e) {
-        var chip = e.target.closest('.chip');
+      function setCategory(cat) {
+        if (!cat) return;
+        var chip = document.querySelector('.chip[data-cat="' + cat + '"]');
         if (!chip) return;
         document.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('active'); });
         chip.classList.add('active');
-        currentCat = chip.dataset.cat;
+        currentCat = cat;
+      }
+
+      document.getElementById('filter-chips').addEventListener('click', function (e) {
+        var chip = e.target.closest('.chip');
+        if (!chip) return;
+        setCategory(chip.dataset.cat);
         applyFilters();
       });
 
@@ -891,6 +898,15 @@
         currentSearch = e.target.value.trim().toLowerCase();
         applyFilters();
       });
+
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('cat')) setCategory(params.get('cat'));
+      if (params.get('q')) {
+        var q = params.get('q');
+        document.getElementById('pub-search').value = q;
+        currentSearch = q.trim().toLowerCase();
+      }
+      applyFilters();
     })();
 
     // Enable pointer-drag horizontal scrolling for the filter chips
